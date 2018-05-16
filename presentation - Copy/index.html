@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>The Property Matrix</title>
+
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+        
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>The Property Matrix</h1>
+					<h3>The House Price Predicting App</h3>
+					<p>
+						<small>Developed by <a href="#">Ranjan, Aayush and Sonali</a></small><br>
+                        <small>Guided by <a href="#">Prof. Srinath DK</a></small><br>
+                        <small>Supported by <a href="#">Dr. R Selvarani</a> (HOD)</small>
+					</p>
+				</section>
+
+				<section>
+					<h2>USE CASE: CALCULATE SELLING PRICE OF MY HOUSE</h2>
+					<p>
+						Jim has a 4 bedrooms and 3 bathrooms house in a city of USA. He wants to sell the house and move to another city. Some friends are telling him that he can get as much as $2.2 Million USD, but Jim’s best friend is telling him that he can only get $1.7 million for 2,769 Sq ft house. Jim is in trouble. That is roughly 1/2 million dollars difference.
+                        Let's help Jim to find out actual selling price of his house.
+					</p>
+				</section>
+
+				<!-- Example of nested vertical slides -->
+				<section>
+					<section>
+						<h2>Tools And Technologies</h2>
+						<p>Tools to help Mr. Jim</p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="238" data-src="img/tool.png" alt="Down arrow">
+						</a>
+					</section>
+					<section>
+						<h2>Languages and system information</h2>
+						<ul>
+                        <li>Language - R</li>
+                        </ul>
+					</section>
+                    <section>
+						<h2>Tools, library and framworks</h2>
+                        <ul>
+                        <li>Tool - R Studio</li>
+                            <li>Framwork - R Shiny</li>
+                            <li>Libraries - lubridate, GGally, ggplot2, hydroGOF, mvtnorm, caret, shiny</li>
+                            
+                            </ul>
+					</section>
+                    <section>
+						<h2>Data Source</h2>
+						<p>King County house sell data</p>
+					</section>
+					<section>
+						<h2>Machine learning technique and model</h2>
+						<p>Regression algorithm.</p>
+						<br>
+						
+					</section>
+				</section>
+                <!--#######################step inv#########################-->
+                <section>
+					<h2>Steps Involved</h2>
+					<ul>
+						<li>Data Collection and loading data to work envirnoment.</li>
+						<li>Preprocessing.</li>
+						<li>Find Correlation Between dependent and independent variables.</li>
+						<li>Plot Graph to find the pattern.</li>
+                        <li>Identify which machine learning algorithm is best fit for prediction.</li>
+                        <li>Build predictive model.</li>
+                        <li>Deploy model into production.</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Data Collection</h2>
+                    <h5>House Sales in King County, USA</h5>
+					<p>
+						This dataset contains house sale prices for King County, which includes Seattle. It includes homes sold between May 2014 and May 2015. and can be found at <a href="https://www.kaggle.com" target="_blank">www.kaggle.com</a>.
+					</p>
+				</section>
+                <section>
+					<h2> Structure of Data</h2>
+                    <a> <img width="900" height="500" data-src="img/Dstr.png" alt="Structure of data"/></a>
+				</section>
+                 <!--################################################Preprocessing###########################################-->
+                <section>
+					<section>
+						<h2>Preprocessing- Cleaning,Transformation and Reduction</h2>
+						<p>Data Preprocessing is a technique that is used to convert the raw data into a clean data set.</p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="200" data-src="img/cleanup.png" alt="Down arrow">
+						</a>
+					</section>
+					<section>
+						<h3>Cleaning</h3>
+						<p>Filter out unnecessary columns.</p>
+                       
+                            <pre><code class="hljs" data-trim contenteditable>
+requiredCols<-c('price', 'sqft_living', 'grade', 'sqft_above', 'bathrooms',
+                'sqft_basement', 'bedrooms', 'floors', 'waterfront', 'howOld',
+                'view', 'sqft_living15', 'zipcode', 'yr_renovated') <br>
+
+houseDataClean<-houseData[,requiredCols]
+					</code></pre>
+                        
+					</section>
+                    <section>
+						<h3>Transformation</h3>
+						<p>Some column types doesn't make sense For example: Year is not numeric, it must be categorical or factor So, change the corresponding column types</p>
+                       
+                            <pre><code class="hljs" data-trim contenteditable>
+House$date<-(substr(House$date, 1, 8))House$date<- ymd(House$date) 
+House$date<-as.numeric(as.Date(House$date, origin = "1900-01-01"))
+					</code></pre>
+					</section>
+                    <section>
+						<h3>Reduction</h3>
+						<p>Removing 7, 8, 9, 10, 11 and 33 bedrooms since their individual count is less than 40 obs</p>
+                        <pre><code class="hljs" data-trim contenteditable>
+index<-houseDataClean$bedrooms %in% c(0,7,8,9,10,11,33)
+houseDataClean<-houseDataClean[!index,]
+					</code></pre>
+                        
+					</section>
+					<section>
+                        <h3>Feature Engineering</h3>
+                        <h5>(Adding New Column)</h5>
+					<pre><code class="hljs" data-trim contenteditable>
+houseData$howOld<-0
+for(i in 1:nrow(houseData)){
+  if(houseData[i,]$yr_renovated==0){
+    houseData[i,]$howOld<-2015-houseData[i,]$yr_built
+  }
+  else{
+    houseData[i,]$howOld<-2015-houseData[i,]$yr_renovated
+  }
+}
+					</code></pre>
+					
+					</section>
+                        <section>
+                        <h3>Splitting the Data Set</h3>
+					<pre><code class="hljs" data-trim contenteditable>
+ratio = sample(1:nrow(House), size = 0.25*nrow(House))
+Test = House[ratio,] #Test dataset 25% of total
+Training = House[-ratio,]
+					</code></pre>
+					
+					</section>
+				</section>
+                        <!--################################################Finding Correlation###########################################-->
+                        <section>
+					<section>
+						<h2>Finding Correlation</h2>
+						<p>Correlation is a statistical technique that is used to measure and describe the STRENGTH and DIRECTION of the relationship between two variables..</p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="200" data-src="img/corr_icon.png" alt="Down arrow">
+						</a>
+					</section>
+					<section>
+						<!--<h3>Cleaning</h3>
+						<p>Filter out unnecessary columns.</p>-->
+                       
+                            <pre><code class="hljs" data-trim contenteditable>
+cor(House[,c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "yr_built", "yr_renovated", "sqft_above", "sqft_basement", "sqft_living15", "sqft_lot15")])
+					</code></pre>
+                         <a> <img width="1700" height="500" data-src="img/Corr_table.png" alt="Correlation table"/></a>
+                        
+					</section>
+                    <section>
+						<p style="font-size: 25px">Checking Relationship between price, bedrooms, bathrooms, sqft_living and sqft lot</p>
+                         <pre><code class="hljs" data-trim contenteditable>
+plot1<-ggpairs(data=Training, columns=3:7,mapping = aes(color = "dark green"),axisLabels="show")
+					</code></pre>
+                       <a> <img width="1700" height="500" data-src="img/Rplot001.png" alt="Relationship between dependent and independent var."/></a>
+					</section>
+                   <section>
+						<p style="font-size: 25px">Checking Relationship between price, floors, waterfront, view, condition and grade</p>
+                         <pre><code class="hljs" data-trim contenteditable>
+plot2<-ggpairs(data=Training, columns=c(3,8:12),mapping = aes(color = "dark green"),axisLabels="show")
+					</code></pre>
+                       <a> <img width="1700" height="500" data-src="img/Rplot002.png" alt="Relationship between dependent and independent var."/></a>
+					</section>
+                       <section>
+						<p style="font-size: 25px">Checking Relationship between price, yr built, lat and long</p>
+                         <pre><code class="hljs" data-trim contenteditable>
+plot3=ggpairs(data=Training, columns=c(3,15,18,19),mapping = aes(color = "dark green"),axisLabels="show")
+					</code></pre>
+                       <a> <img width="1700" height="500" data-src="img/Rplot003.png" alt="Relationship between dependent and independent var."/></a>
+					</section>
+					<section>
+                        <h6>Plots 1,2 and 3 shows the correlation between each variables and they are:</h6>
+					
+                        <ul style="font-size: 25px">
+                        <li>corr between price vs sqft_living: <strong style="color:chartreuse">0.701</strong></li>
+                            <li>corr between price vs bathrooms: <b style="color:chartreuse">0.524</b></li>
+                            <li>corr between price vs bedrooms: 0.303</li>
+                            <li>corr between price vs sqft_lot: 0.0972</li>
+                            <li>corr between price vs floors: 0.282</li>
+                            <li>corr between price vs waterfront: 0.324</li>
+                            <li>corr between price vs view: <b style="color:chartreuse">0.406</b></li>
+                            <li>corr between price vs condition: 0.0466</li>
+                            <li>corr between price vs grade: <b style="color:chartreuse">0.654</b></li>
+                            <li>corr between price vs yr_built: 0.0366</li>
+                            <li>corr between price vs lat: <b style="color:chartreuse">0.304</b></li>
+                            <li>corr between price vs long: 0.0161</li>
+                        </ul>
+					
+					</section>
+                       <section>
+                           <p>We decided to choose 5 variable that are sqft_living, bathrooms, grade, view and lat. which are highly correlated and will help for better prediction. we will verify this using box plots in next section. </p><br>
+                           <p>Note: Since the features zipcode, latitude, and longitude do not work with scatter plot well, we will deal with them separately.</p>
+                       </section>
+				</section>
+              <!--################################################PLotting###########################################-->
+                         <section>
+					<section>
+						<h2>Box Plot</h2>
+						<p>Finding the pattern and verify selected variables</p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="200" data-src="img/boxplot_icon.png" alt="Down arrow">
+						</a>
+					</section>
+					<section>
+				<pre><code class="hljs" data-trim contenteditable>
+                boxplot1=boxplot(price~sqft_living, data=Training, 
+                 col=(c("gold","darkgreen")),
+                 main="Price vs. Sqft_living", xlab="Sqft_living", ylab="Price")
+					</code></pre>
+                         <a> <img width="700" height="400" data-src="img/Boxplot1.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Price vs. Sqft_living ->> Nice correlation, as sqft increases, price increases as well.</p>
+					</section>
+                    <section>
+				<pre><code class="hljs" data-trim contenteditable>
+               boxplot2=boxplot(price~bathrooms, data=Training, 
+                 col=(c("gold","darkgreen")),
+                 main="Price vs. Bathrooms", xlab="Bathrooms", ylab="Price")
+					</code></pre>
+                         <a> <img width="700" height="400" data-src="img/Boxplot2.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Price vs. Bathrooms ->> Nice correlation, as of bahtrooms increases [median of bar plot], price increases as well, with an expection when bathroom=7</p>
+					</section>
+                             
+                             <section>
+				<pre><code class="hljs" data-trim contenteditable>
+              boxplot3=boxplot(price~grade, data=Training, 
+                 col=(c("gold","darkgreen")),
+                 main="Price vs. Grade", xlab="Grade", ylab="Price")
+					</code></pre>
+                         <a> <img width="700" height="400" data-src="img/Boxplot3.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Price vs. Grade ->> Nice correlation, grade increases [median of bar plot], price increases as well</p>
+					</section>
+                             
+                              <section>
+				<pre><code class="hljs" data-trim contenteditable>
+              boxplot4=boxplot(price~view, data=Training, 
+                 col=(c("gold","darkgreen")),
+                 main="Price vs. View", xlab="View", ylab="Price")
+					</code></pre>
+                         <a> <img width="700" height="400" data-src="img/Boxplot4.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Price vs. View ->> Nice correlation, view increases [median of bar plot], price increases as well</p>
+					</section>
+                             
+                             <section>
+				<pre><code class="hljs" data-trim contenteditable>
+             boxplot5=boxplot(price~lat, data=Training, 
+                 col=(c("gold","darkgreen")),
+                 main="Price vs. Lat", xlab="Lat", ylab="Price")
+					</code></pre>
+                         <a> <img width="700" height="400" data-src="img/Boxplot5.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Price vs. Lat ->> This is more like a normal dist relationship, price peaks around when lat= 47.64 and declines afterwards, but this can be modeled easily. we would say Lat explains the price as well.</p>
+					</section>
+                   
+                             
+                       <section>
+                           <p>Each of those box plots shows that those variables might be directly related in predicting house prices. </p><br>
+                           <p>To strengthen Our hypothesis we also computed correlation between prices and variables, and our top 5 picks are supported with correlation coefficients as well.</p>
+                           <p>After analysing the pattern obtained, we decided to go with Linear Regression ML Algorithm.  </p>
+                       </section>
+				</section>
+                        
+                        <!--###############Basic Model############-->
+                    <section>
+					<section>
+						<h2>Our Basic Model</h2>
+						<p>Using the predictor sqft living for predicting house prices</p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="200" data-src="img/lm.png" alt="Down arrow">
+						</a>
+					</section>
+				<section>
+				<pre><code class="hljs" data-trim contenteditable>
+                plot(Training$sqft_living,Training$price, main="Sqft_Living vs. Price of House", xlab="Sqft_Living", ylab="Price of House", pch=19)
+					</code></pre>
+                         <a> <img width="500" height="400" data-src="img/SctrPlot_SqftVSprice.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Since this scatterplot is too crowded - we will plot aggregated vectors to see the relationship between 2 variables.</p>
+				</section>
+                <section>
+				<pre><code class="hljs" data-trim contenteditable>
+               vec_price_sqftliving <-aggregate(price~sqft_living, FUN=mean, data=Training)
+                plot(vec_price_sqftliving)
+                scatterplot1<-recordPlot()
+					</code></pre>
+                         <a> <img width="500" height="400" data-src="img/plot_aggregated_vectors.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">Plot does not show that price and sqft_living are linearly related. It more looks like an exponential relationship.</p>
+				</section>
+                             
+                <section>
+				<pre><code class="hljs" data-trim contenteditable>
+linear_model<-lm(vec_price_sqftliving$price~vec_price_sqftliving$sqft_living)
+expo_model<-lm(log(vec_price_sqftliving$price)~vec_price_sqftliving$sqft_living)
+					</code></pre>
+                         <table>
+						<thead>
+							<tr>
+								<th>Model</th>
+								<th>Multiple R-squared</th>
+                                <th>Adjusted R-squared</th>
+								
+                                
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>linear_model</td>
+								<td>0.6972</td>
+								<td>0.6969 </td>
+							</tr>
+							<tr>
+								<td>expo_model</td>
+								<td>0.7886</td>
+								<td>0.7884 </td>
+							</tr>
+							<!--<tr>
+								<td>Bread</td>
+								<td>$3</td>
+								<td>2</td>
+							</tr>-->
+						</tbody>
+					</table>
+					</section>
+                             
+                <section>
+				<pre><code class="hljs" data-trim contenteditable>
+              plot(log(vec_price_sqftliving$sqft_living),log(vec_price_sqftliving$price), main="Log of Sqft_Living vs. Log of Price of House", xlab="Log Sqft_Living", ylab="Log Price of House", pch=19)
+              scatterplot2<-recordPlot()
+					</code></pre>
+                         <a> <img width="700" height="400" data-src="img/scatterplot2_withAggregateData.jpeg" alt="Correlation table"/></a>
+                        <p style="font-size: 25px">we are using aggregated data as opposed to using the raw data. By "aggragated" data, we will take the mean for all the same sqft_living. It makes the graph cleaner.</p>
+                </section>
+                             
+                <section>
+				
+                        <p style="font-size: 25px">Major differences between two scatterplots are: 1) 2nd plot which has log transformation seems to have squeezed the data - x axis ranges from 6 to 10 and y axis ranges from 10 to 17 as opposed to ranging from 100 to 10000 in x axis and  75000 to 7060000 in y axis in scatterplot1.</p>
+                                  <p style="font-size: 25px">So the difference between different data points is smaller. 2) Relationship between variables in plot 1 seems to be exponential and in plot 2 it seems to be linear. 3) Plot 2 clustered the data points in mid range of both axis and plot 1's data points are clustered around lower range of both axis </p>
+                                  <p style="font-size: 25px">OLS performs poorly when there are big outliers and in scatterplot 1 there are many because of exponential behavior of the data. we would pick Model2 (can be seen in scatterplot2) because a linear line can explain the data more accurately since data looks linear.</p>
+                </section>
+				</section>
+              
+
+				<!--#########################Another Model#####################-->
+
+                        <section>
+					<section>
+						<h2>In search of max accuracy and min error</h2>
+						<p>R^2, MSE, SEE, Residuals</p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="200" data-src="img/predictive.png" alt="Down arrow">
+						</a>
+					</section>
+				<section>
+				 <table style="font-size: 27px">
+						<thead>
+							<tr>
+                                
+								<th>Model</th>
+                                <th>R-squared</th>
+								<th>MSE</th>
+                                <th>Comment(MSE)</th>
+                                <th>Comment(R^2)</th> 
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>M1</td>
+								<td>0.5010955</td>
+								<td>74430190588</td>
+							</tr>
+							<tr>
+								<td>M2(log)M1</td>
+								<td>0.4569825</td>
+								<td>84298554161</td>
+							</tr>
+                               <tr>
+								<td>M3</td>
+								<td>0.5611</td>
+								<td>56924153087</td>
+                                   <td>MSE for M2 is  48.09 % more than M3. Therefore We can safely suggest that M3 is better than M2</td>
+                                   <th>R^2 for M3 is  22.79167 % better than M2</th>
+							</tr>
+                             <tr>
+								<td>M4</td>
+								<td>0.753092</td>
+								<td>40148489344</td>
+                                 <th>MSE for M3 is  41.78 % more than M4</th>
+                                 <th>R^2 for M4 is  34.20836 % better than M3.</th>
+							</tr>
+                             <tr>
+								<td>M5</td>
+								<td>0.7552</td>
+								<td>39790512156</td>
+                                 <th>MSE for M4 is  0.9 % more than M5</th>
+							</tr>
+                             <tr>
+								<td>MX</td>
+								<td>0.7734</td>
+								<td>36172754864</td>
+                                 <th>MSE for M5 is  10 % more than MX</th>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+               				</section>
+              
+                            <!--#################################Model to product######################-->
+				
+                        <section>
+					<section>
+						<h2>Deploying Model into product</h2>
+						<p></p>
+						<!--<p>Use the <em>Space</em> key to navigate through all slides.</p>-->
+						<br>
+						<a href="#" class="navigate-down">
+							<img width="178" height="200" data-src="img/pro.png" alt="Down arrow">
+						</a>
+					</section>
+				<section>
+				 <p>Shiny is an open source R package that provides an elegant and powerful web framework for building web applications using R. </p>
+                    <ul><li>ui.R- It helps to provide user interface. </li>
+                    <li>server.R- It is used to write logic. </li></ul>
+				</section>
+                            <section data-background="img/r2.png">
+						<h2>UI.R syntax</h2>
+						<pre><code class="hljs" style="word-wrap: break-word;">
+                             ui.R syntax
+ library(shiny)
+
+# Define UI ----
+ui <- fluidPage(
+  
+)
+
+# Define server logic ----
+server <- function(input, output) {
+  
+}
+
+# Run the app ----
+shinyApp(ui = ui, server = server)&gt;</code></pre>
+					</section>
+                            
+                             <section data-background="img/r4.png">
+						<h2>server.R syntax</h2>
+						<pre><code class="hljs" style="word-wrap: break-word;">
+                             server.R syntax
+ # Server logic ----
+server <- function(input, output) {
+  output$map <- renderPlot({
+    percent_map( # some arguments )
+  })
+}
+
+# Run app ----
+shinyApp(ui, server)&gt;</code></pre>
+					</section>
+                            
+                             <section data-background="img/sc.png">
+						<h2 style="color: crimson">House price predictor app UI</h2>
+						
+					</section>
+               				</section>
+                <!--        
+                        
+                        
+                        <section>
+                    <h2>Point of View</h2>
+					<p>
+						Press <strong>ESC</strong> to enter the slide overview.
+					</p>
+					<p>
+						Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
+					</p>
+				</section>
+
+				<section>
+					<h2>Touch Optimized</h2>
+					<p>
+						Presentations look great on touch devices, like mobile phones and tablets. Simply swipe through your slides.
+					</p>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						## Markdown support
+
+						Write content using inline or external Markdown.
+						Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
+
+						```
+						<section data-markdown>
+						  ## Markdown support
+
+						  Write content using inline or external Markdown.
+						  Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
+						</section>
+						```
+					</script>
+				</section>
+
+				<section>
+					<section id="fragments">
+						<h2>Fragments</h2>
+						<p>Hit the next arrow...</p>
+						<p class="fragment">... to step through ...</p>
+						<p><span class="fragment">... a</span> <span class="fragment">fragmented</span> <span class="fragment">slide.</span></p>
+
+						<aside class="notes">
+							This slide has fragments which are also stepped through in the notes window.
+						</aside>
+					</section>
+					<section>
+						<h2>Fragment Styles</h2>
+						<p>There's different types of fragments, like:</p>
+						<p class="fragment grow">grow</p>
+						<p class="fragment shrink">shrink</p>
+						<p class="fragment fade-out">fade-out</p>
+						<p class="fragment fade-up">fade-up (also down, left and right!)</p>
+						<p class="fragment current-visible">current-visible</p>
+						<p>Highlight <span class="fragment highlight-red">red</span> <span class="fragment highlight-blue">blue</span> <span class="fragment highlight-green">green</span></p>
+					</section>
+				</section>
+
+				<section id="transitions">
+					<h2>Transition Styles</h2>
+					<p>
+						You can select from different transitions, like: <br>
+						<a href="?transition=none#/transitions">None</a> -
+						<a href="?transition=fade#/transitions">Fade</a> -
+						<a href="?transition=slide#/transitions">Slide</a> -
+						<a href="?transition=convex#/transitions">Convex</a> -
+						<a href="?transition=concave#/transitions">Concave</a> -
+						<a href="?transition=zoom#/transitions">Zoom</a>
+					</p>
+				</section>-->
+
+				<!--<section id="themes">
+					<h2>Themes</h2>
+					<p>
+						reveal.js comes with a few themes built in: <br>
+						 Hacks to swap themes after the page has loaded. Not flexible and only intended for the reveal.js demo deck. 
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/black.css'); return false;">Black (default)</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/white.css'); return false;">White</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/league.css'); return false;">League</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/sky.css'); return false;">Sky</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/beige.css'); return false;">Beige</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/simple.css'); return false;">Simple</a> <br>
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/serif.css'); return false;">Serif</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/blood.css'); return false;">Blood</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/night.css'); return false;">Night</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/moon.css'); return false;">Moon</a> -
+						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/solarized.css'); return false;">Solarized</a>
+					</p>
+				</section>-->
+
+				<!--<section>
+					<section data-background="#dddddd">
+						<h2>Slide Backgrounds</h2>
+						<p>
+							Set <code>data-background="#dddddd"</code> on a slide to change the background color. All CSS color formats are supported.
+						</p>
+						<a href="#" class="navigate-down">
+							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
+						</a>
+					</section>
+					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png">
+						<h2>Image Backgrounds</h2>
+						<pre><code class="hljs">&lt;section data-background="image.png"&gt;</code></pre>
+					</section>
+					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png" data-background-repeat="repeat" data-background-size="100px">
+						<h2>Tiled Backgrounds</h2>
+						<pre><code class="hljs" style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
+					</section>
+					<section data-background-video="https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.mp4,https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.webm" data-background-color="#000000">
+						<div style="background-color: rgba(0, 0, 0, 0.9); color: #fff; padding: 20px;">
+							<h2>Video Backgrounds</h2>
+							<pre><code class="hljs" style="word-wrap: break-word;">&lt;section data-background-video="video.mp4,video.webm"&gt;</code></pre>
+						</div>
+					</section>
+					<section data-background="http://i.giphy.com/90F8aUepslB84.gif">
+						<h2>... and GIFs!</h2>
+					</section>
+				</section>
+
+				<section data-transition="slide" data-background="#4d7e65" data-background-transition="zoom">
+					<h2>Background Transitions</h2>
+					<p>
+						Different background transitions are available via the backgroundTransition option. This one's called "zoom".
+					</p>
+					<pre><code class="hljs">Reveal.configure({ backgroundTransition: 'zoom' })</code></pre>
+				</section>
+
+				<section data-transition="slide" data-background="#b5533c" data-background-transition="zoom">
+					<h2>Background Transitions</h2>
+					<p>
+						You can override background transitions per-slide.
+					</p>
+					<pre><code class="hljs" style="word-wrap: break-word;">&lt;section data-background-transition="zoom"&gt;</code></pre>
+				</section>
+
+				<section>
+					<h2>Pretty Code</h2>
+					<pre><code class="hljs" data-trim contenteditable>
+function linkify( selector ) {
+  if( supports3DTransforms ) {
+
+    var nodes = document.querySelectorAll( selector );
+
+    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
+      var node = nodes[i];
+
+      if( !node.className ) {
+        node.className += ' roll';
+      }
+    }
+  }
+}
+					</code></pre>
+					<p>Code syntax highlighting courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+				</section>
+
+				<section>
+					<h2>Marvelous List</h2>
+					<ul>
+						<li>No order here</li>
+						<li>Or here</li>
+						<li>Or here</li>
+						<li>Or here</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Fantastic Ordered List</h2>
+					<ol>
+						<li>One is smaller than...</li>
+						<li>Two is smaller than...</li>
+						<li>Three!</li>
+					</ol>
+				</section>
+
+				<section>
+					<h2>Tabular Tables</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th>Value</th>
+								<th>Quantity</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Apples</td>
+								<td>$1</td>
+								<td>7</td>
+							</tr>
+							<tr>
+								<td>Lemonade</td>
+								<td>$2</td>
+								<td>18</td>
+							</tr>
+							<tr>
+								<td>Bread</td>
+								<td>$3</td>
+								<td>2</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+-->
+				<!--<section>
+					<h2>Clever Quotes</h2>
+					<p>
+						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">The nice thing about standards is that there are so many to choose from</q> and block:
+					</p>
+					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
+						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
+						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
+					</blockquote>
+				</section>-->
+
+				<!--<section>
+					<h2>Intergalactic Interconnections</h2>
+					<p>
+						You can link between slides internally,
+						<a href="#/2/3">like this</a>.
+					</p>
+				</section>-->
+
+				<!--<section>
+					<h2>Speaker View</h2>
+					<p>There's a <a href="https://github.com/hakimel/reveal.js#speaker-notes">speaker view</a>. It includes a timer, preview of the upcoming slide as well as your speaker notes.</p>
+					<p>Press the <em>S</em> key to try it out.</p>
+
+					<aside class="notes">
+						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
+					</aside>
+				</section>-->
+
+				<!--<section>
+					<h2>Export to PDF</h2>
+					<p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, here's an example:</p>
+					<iframe data-src="https://www.slideshare.net/slideshow/embed_code/42840540" width="445" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+				</section>-->
+
+				<!--<section>
+					<h2>Global State</h2>
+					<p>
+						Set <code>data-state="something"</code> on a slide and <code>"something"</code>
+						will be added as a class to the document element when the slide is open. This lets you
+						apply broader style changes, like switching the page background.
+					</p>
+				</section>-->
+
+				<!--<section data-state="customevent">
+					<h2>State Events</h2>
+					<p>
+						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
+					</p>
+					<pre><code class="javascript" data-trim contenteditable style="font-size: 18px;">
+Reveal.addEventListener( 'customevent', function() {
+	console.log( '"customevent" has fired' );
+} );
+					</code></pre>
+				</section>-->
+
+				<!--<section>
+					<h2>Take a Moment</h2>
+					<p>
+						Press B or . on your keyboard to pause the presentation. This is helpful when you're on stage and want to take distracting slides off the screen.
+					</p>
+				</section>-->
+
+				<!--<section>
+					<h2>Much more</h2>
+					<ul>
+						<li>Right-to-left support</li>
+						<li><a href="https://github.com/hakimel/reveal.js#api">Extensive JavaScript API</a></li>
+						<li><a href="https://github.com/hakimel/reveal.js#auto-sliding">Auto-progression</a></li>
+						<li><a href="https://github.com/hakimel/reveal.js#parallax-background">Parallax backgrounds</a></li>
+						<li><a href="https://github.com/hakimel/reveal.js#keyboard-bindings">Custom keyboard bindings</a></li>
+					</ul>
+				</section>
+-->
+				<!--<section style="text-align: left;">
+					<h1>THE END</h1>
+					<p>
+						- <a href="https://slides.com">Try the online editor</a> <br>
+						- <a href="https://github.com/hakimel/reveal.js">Source code &amp; documentation</a>
+					</p>
+				</section>-->
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/search/search.js', async: true },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
